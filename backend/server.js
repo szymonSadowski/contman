@@ -4,6 +4,13 @@ const companies = require('./companies.json');
 
 const app = express();
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.get('/users', (req, res) => res.json(users));
 
 app.get('/users/:id', (req, res) => {
