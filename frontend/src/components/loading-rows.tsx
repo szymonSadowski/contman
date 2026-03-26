@@ -1,6 +1,6 @@
 export function LoadingRows() {
   return (
-    <div className="rounded-lg border border-border overflow-hidden">
+    <div role="status" aria-label="Loading…" className="rounded-lg border border-border overflow-hidden">
       <div className="px-4 py-3 bg-muted/40 border-b border-border">
         <div className="h-4 w-64 bg-muted rounded animate-pulse" />
       </div>

@@ -24,21 +24,22 @@ function UserDetailPage() {
     url: ENDPOINTS.companies,
   });
 
-  const userCompanies = allCompanies?.filter((c) => c.users?.includes(userId)) ?? [];
+  const userCompanies =
+    allCompanies?.filter((c) => c.users?.includes(userId)) ?? [];
   const KNOWN_FEATURES = new Set(["kittens", "random-number", "company"]);
-  const uniqueFeatures = [...new Set(userCompanies.flatMap((c) => c.features ?? []))].filter(
-    (f) => KNOWN_FEATURES.has(f)
-  );
+  const uniqueFeatures = [
+    ...new Set(userCompanies.flatMap((c) => c.features ?? [])),
+  ].filter((f) => KNOWN_FEATURES.has(f));
 
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <Link
         to="/"
         className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors mb-8"
       >
-        <ChevronLeft className="w-3.5 h-3.5" />
+        <ChevronLeft className="w-3.5 h-3.5" aria-hidden="true" />
         Back to Users
       </Link>
 
@@ -69,18 +70,23 @@ function UserDetailPage() {
               <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
                 ID
               </span>
-              <span className="font-mono text-sm text-foreground">{user.id}</span>
+              <span className="font-mono text-sm text-foreground">
+                {user.id}
+              </span>
             </div>
             <div className="px-4 py-3 flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
                 Joined
               </span>
               <span className="font-mono text-sm text-foreground">
-                {new Date(user.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {new Date(user.createdAt).toLocaleDateString(
+                  navigator.language,
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  },
+                )}
               </span>
             </div>
 
@@ -97,7 +103,9 @@ function UserDetailPage() {
                   {userCompanies.map((c) => (
                     <div key={c.id} className="flex items-center gap-2">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
-                      <span className="font-mono text-sm text-foreground">{c.name}</span>
+                      <span className="font-mono text-sm text-foreground">
+                        {c.name}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -129,20 +137,24 @@ function UserDetailPage() {
                 >
                   <div className="flex items-center gap-2">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span className="font-mono text-sm text-foreground">{f}</span>
+                    <span className="font-mono text-sm text-foreground">
+                      {f}
+                    </span>
                   </div>
                   <button
                     onClick={() =>
                       setActiveFeature(activeFeature === f ? null : f)
                     }
-                    className={`inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded border transition-colors ${
+                    aria-label={`${activeFeature === f ? "Stop" : "Run"} ${f}`}
+                    aria-pressed={activeFeature === f}
+                    className={`inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded border transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
                       activeFeature === f
                         ? "border-primary/40 bg-primary/10 text-primary"
                         : "border-border hover:bg-muted/40 text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <Play className="w-2.5 h-2.5" />
-                    run
+                    <Play className="w-2.5 h-2.5" aria-hidden="true" />
+                    {activeFeature === f ? "stop" : "run"}
                   </button>
                 </div>
               ))
