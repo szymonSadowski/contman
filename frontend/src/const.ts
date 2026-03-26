@@ -4,3 +4,5 @@ export const ENDPOINTS = {
   users: "/users",
   companies: "/companies",
 } as const;
+
+export const KITTENS_URL = "https://placekittens.com/";

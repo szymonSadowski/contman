@@ -1,7 +1,7 @@
 [
   {
     "name": "Hyatt, Johnston and Hansen",
-    "features": ["kittens"],
+    "features": ["kittens", "company", "random-number"],
     "users": ["1"],
     "id": "1"
   },

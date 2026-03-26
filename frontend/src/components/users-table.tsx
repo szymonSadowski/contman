@@ -47,12 +47,12 @@ export function UsersTable() {
       <Table>
         <TableHeader>
           <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
-            <TableHead className="w-[80px] pl-4 text-xs uppercase tracking-widest font-mono text-muted-foreground">
-              ID
-            </TableHead>
-            <TableHead className="w-[52px]" />
+            <TableHead className="w-[52px] pl-4" />
             <TableHead className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
               Name
+            </TableHead>
+            <TableHead className="w-[80px] text-xs uppercase tracking-widest font-mono text-muted-foreground">
+              ID
             </TableHead>
             <TableHead className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
               Company
@@ -70,12 +70,7 @@ export function UsersTable() {
               onClick={() => handleRowClick(user)}
               className="border-border group cursor-pointer transition-colors hover:bg-primary/5"
             >
-              <TableCell className="pl-4">
-                <span className="font-mono text-xs text-muted-foreground">
-                  {user.id.slice(0, 8)}
-                </span>
-              </TableCell>
-              <TableCell className="py-3">
+              <TableCell className="pl-4 py-3">
                 <Avatar className="w-8 h-8 ring-1 ring-border group-hover:ring-primary/50 transition-all">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
@@ -89,6 +84,11 @@ export function UsersTable() {
               </TableCell>
               <TableCell>
                 <span className="font-medium text-foreground">{user.name}</span>
+              </TableCell>
+              <TableCell>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {user.id.slice(0, 8)}
+                </span>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">

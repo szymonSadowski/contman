@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useFetch } from "@/hooks/useFetch";
 import { ENDPOINTS } from "@/const";
 import { type User, type Company, UserPageParams } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Play } from "lucide-react";
+import { FeatureOutput } from "@/components/features/feature-output";
 
 export const Route = createFileRoute("/user/$userId")({
   parseParams: UserPageParams.parse,
@@ -24,7 +26,9 @@ function UserDetailPage() {
     url: `${ENDPOINTS.companies}/${companyId}`,
     enabled: !!companyId,
   });
-  const { data: allCompanies, isLoading: allCompaniesLoading } = useFetch<Company[]>({
+  const { data: allCompanies, isLoading: allCompaniesLoading } = useFetch<
+    Company[]
+  >({
     url: ENDPOINTS.companies,
     enabled: !companyId,
   });
@@ -32,7 +36,11 @@ function UserDetailPage() {
   const resolvedCompany = companyId
     ? company
     : allCompanies?.find((c) => c.users?.includes(userId));
-  const companyResolutionLoading = companyId ? companyLoading : allCompaniesLoading;
+  const companyResolutionLoading = companyId
+    ? companyLoading
+    : allCompaniesLoading;
+
+  const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
   return (
     <div className="max-w-2xl">
@@ -63,13 +71,16 @@ function UserDetailPage() {
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 {user.name}
               </h1>
-              <span className="font-mono text-xs text-muted-foreground">
-                {user.id}
-              </span>
             </div>
           </div>
 
           <div className="rounded-lg border border-border divide-y divide-border">
+            <div className="px-4 py-3 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
+                ID
+              </span>
+              <span className="font-mono text-sm text-foreground">{user.id}</span>
+            </div>
             <div className="px-4 py-3 flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
                 Joined
@@ -92,25 +103,11 @@ function UserDetailPage() {
                   Loading…
                 </span>
               ) : resolvedCompany ? (
-                <div className="flex flex-col items-end gap-1">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60" />
-                    <span className="font-mono text-sm text-foreground">
-                      {resolvedCompany.name}
-                    </span>
-                  </div>
-                  {resolvedCompany.features && resolvedCompany.features.length > 0 && (
-                    <div className="flex flex-wrap gap-1 justify-end">
-                      {resolvedCompany.features.map((f) => (
-                        <span
-                          key={f}
-                          className="text-xs font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary"
-                        >
-                          {f}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60" />
+                  <span className="font-mono text-sm text-foreground">
+                    {resolvedCompany.name}
+                  </span>
                 </div>
               ) : (
                 <span className="font-mono text-sm text-muted-foreground">
@@ -119,6 +116,66 @@ function UserDetailPage() {
               )}
             </div>
           </div>
+
+          <div className="rounded-lg border border-border divide-y divide-border">
+            <div className="px-4 py-3">
+              <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
+                Features
+              </span>
+            </div>
+            {companyResolutionLoading ? (
+              <div className="px-4 py-3">
+                <span className="font-mono text-sm text-muted-foreground">
+                  Loading…
+                </span>
+              </div>
+            ) : resolvedCompany?.features &&
+              resolvedCompany.features.length > 0 ? (
+              resolvedCompany.features.map((f) => (
+                <div
+                  key={f}
+                  className="px-4 py-3 flex items-center justify-between"
+                >
+                  <span className="font-mono text-sm text-foreground">{f}</span>
+                  <button
+                    onClick={() =>
+                      setActiveFeature(activeFeature === f ? null : f)
+                    }
+                    className={`inline-flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded border transition-colors ${
+                      activeFeature === f
+                        ? "border-primary/40 bg-primary/10 text-primary"
+                        : "border-border hover:bg-muted/40 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Play className="w-2.5 h-2.5" />
+                    run
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-3">
+                <span className="font-mono text-sm text-muted-foreground">
+                  —
+                </span>
+              </div>
+            )}
+          </div>
+
+          {activeFeature && (
+            <div className="rounded-lg border border-border divide-y divide-border">
+              <div className="px-4 py-3 flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
+                  Output
+                </span>
+                <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                  {activeFeature}
+                </span>
+              </div>
+              <div className="px-4 py-4">
+                <FeatureOutput feature={activeFeature} userId={userId} />
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <p className="text-muted-foreground text-sm">User not found.</p>
