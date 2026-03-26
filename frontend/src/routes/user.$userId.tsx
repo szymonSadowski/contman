@@ -9,36 +9,26 @@ import { FeatureOutput } from "@/components/features/feature-output";
 
 export const Route = createFileRoute("/user/$userId")({
   parseParams: UserPageParams.parse,
-  validateSearch: (s: Record<string, unknown>) => ({
-    company: String(s.company ?? ""),
-  }),
   component: UserDetailPage,
 });
 
 function UserDetailPage() {
   const { userId } = Route.useParams();
-  const { company: companyId } = Route.useSearch();
 
   const { data: user, isLoading: userLoading } = useFetch<User>({
     url: `${ENDPOINTS.users}/${userId}`,
   });
-  const { data: company, isLoading: companyLoading } = useFetch<Company>({
-    url: `${ENDPOINTS.companies}/${companyId}`,
-    enabled: !!companyId,
-  });
-  const { data: allCompanies, isLoading: allCompaniesLoading } = useFetch<
+  const { data: allCompanies, isLoading: companiesLoading } = useFetch<
     Company[]
   >({
     url: ENDPOINTS.companies,
-    enabled: !companyId,
   });
 
-  const resolvedCompany = companyId
-    ? company
-    : allCompanies?.find((c) => c.users?.includes(userId));
-  const companyResolutionLoading = companyId
-    ? companyLoading
-    : allCompaniesLoading;
+  const userCompanies = allCompanies?.filter((c) => c.users?.includes(userId)) ?? [];
+  const KNOWN_FEATURES = new Set(["kittens", "random-number", "company"]);
+  const uniqueFeatures = [...new Set(userCompanies.flatMap((c) => c.features ?? []))].filter(
+    (f) => KNOWN_FEATURES.has(f)
+  );
 
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
 
@@ -94,20 +84,22 @@ function UserDetailPage() {
               </span>
             </div>
 
-            <div className="px-4 py-3 flex items-center justify-between">
+            <div className="px-4 py-3 flex items-start justify-between">
               <span className="text-xs uppercase tracking-widest font-mono text-muted-foreground">
-                Company
+                Companies
               </span>
-              {companyResolutionLoading ? (
+              {companiesLoading ? (
                 <span className="font-mono text-sm text-muted-foreground">
                   Loading…
                 </span>
-              ) : resolvedCompany ? (
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60" />
-                  <span className="font-mono text-sm text-foreground">
-                    {resolvedCompany.name}
-                  </span>
+              ) : userCompanies.length > 0 ? (
+                <div className="flex flex-col gap-1 items-end">
+                  {userCompanies.map((c) => (
+                    <div key={c.id} className="flex items-center gap-2">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span className="font-mono text-sm text-foreground">{c.name}</span>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <span className="font-mono text-sm text-muted-foreground">
@@ -123,20 +115,22 @@ function UserDetailPage() {
                 Features
               </span>
             </div>
-            {companyResolutionLoading ? (
+            {companiesLoading ? (
               <div className="px-4 py-3">
                 <span className="font-mono text-sm text-muted-foreground">
                   Loading…
                 </span>
               </div>
-            ) : resolvedCompany?.features &&
-              resolvedCompany.features.length > 0 ? (
-              resolvedCompany.features.map((f) => (
+            ) : uniqueFeatures.length > 0 ? (
+              uniqueFeatures.map((f) => (
                 <div
                   key={f}
                   className="px-4 py-3 flex items-center justify-between"
                 >
-                  <span className="font-mono text-sm text-foreground">{f}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+                    <span className="font-mono text-sm text-foreground">{f}</span>
+                  </div>
                   <button
                     onClick={() =>
                       setActiveFeature(activeFeature === f ? null : f)

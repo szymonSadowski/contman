@@ -25,21 +25,12 @@ export function UsersTable() {
 
   if (usersLoading) return <LoadingRows />;
 
-  function getCompany(userId: string): Company | undefined {
-    return companies?.find((c) => c.users?.includes(userId));
-  }
-
-  function getCompanyName(userId: string) {
-    return getCompany(userId)?.name ?? "—";
+  function getUserCompanies(userId: string): Company[] {
+    return companies?.filter((c) => c.users?.includes(userId)) ?? [];
   }
 
   function handleRowClick(user: User) {
-    const company = getCompany(user.id);
-    navigate({
-      to: "/user/$userId",
-      params: { userId: user.id },
-      search: { company: company?.id ?? "" },
-    });
+    navigate({ to: "/user/$userId", params: { userId: user.id } });
   }
 
   return (
@@ -91,11 +82,17 @@ export function UsersTable() {
                 </span>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary/60" />
-                  <span className="text-muted-foreground text-sm">
-                    {getCompanyName(user.id)}
-                  </span>
+                <div className="flex flex-col gap-1">
+                  {getUserCompanies(user.id).length > 0 ? (
+                    getUserCompanies(user.id).map((c) => (
+                      <div key={c.id} className="flex items-center gap-2">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span className="text-muted-foreground text-sm">{c.name}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground text-sm">—</span>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
