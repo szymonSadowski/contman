@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { ENDPOINTS } from "@/const";
 import type { User, Company } from "@/types";
 import { useFetch } from "@/hooks/useFetch";
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { LoadingRows } from "./loading-rows";
 
 export function UsersTable() {
+  const navigate = useNavigate();
   const { data: users, isLoading: usersLoading } = useFetch<User[]>({
     url: ENDPOINTS.users,
   });
@@ -23,8 +25,21 @@ export function UsersTable() {
 
   if (usersLoading) return <LoadingRows />;
 
+  function getCompany(userId: string): Company | undefined {
+    return companies?.find((c) => c.users?.includes(userId));
+  }
+
   function getCompanyName(userId: string) {
-    return companies?.find((c) => c.users?.includes(userId))?.name ?? "—";
+    return getCompany(userId)?.name ?? "—";
+  }
+
+  function handleRowClick(user: User) {
+    const company = getCompany(user.id);
+    navigate({
+      to: "/user/$userId",
+      params: { userId: user.id },
+      search: { company: company?.id ?? "" },
+    });
   }
 
   return (
@@ -52,6 +67,7 @@ export function UsersTable() {
           {users?.map((user) => (
             <TableRow
               key={user.id}
+              onClick={() => handleRowClick(user)}
               className="border-border group cursor-pointer transition-colors hover:bg-primary/5"
             >
               <TableCell className="pl-4">

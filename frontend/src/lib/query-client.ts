@@ -2,7 +2,10 @@ import type {
   QueryFunctionContext,
   UseQueryOptions,
 } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { BACKEND_URL } from "@/const";
+
+export const queryClient = new QueryClient();
 
 export type FetchConfig<T> = Omit<
   UseQueryOptions<T, Error, T, QueryKeyT>,

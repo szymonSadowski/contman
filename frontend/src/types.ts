@@ -1,3 +1,5 @@
+import z from "zod";
+
 export interface User {
   id: string;
   name: string;
@@ -12,6 +14,6 @@ export interface Company {
   users?: string[];
 }
 
-export interface ErrorResponse {
-  error: string;
-}
+export const UserPageParams = z.object({
+  userId: z.string(),
+});
