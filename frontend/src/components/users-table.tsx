@@ -15,7 +15,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { LoadingRows } from "./loading-rows";
 
 export function UsersTable() {
-  const { data: users, isLoading: usersLoading } = useFetch<User[]>({
+  const {
+    data: users,
+    isLoading: usersLoading,
+    isError: usersError,
+  } = useFetch<User[]>({
     url: ENDPOINTS.users,
   });
   const { data: companies } = useFetch<Company[]>({
@@ -23,6 +27,15 @@ export function UsersTable() {
   });
 
   if (usersLoading) return <LoadingRows />;
+
+  if (usersError)
+    return (
+      <div className="rounded-lg border border-destructive/50 bg-destructive/5 px-4 py-6 text-center">
+        <p className="font-mono text-sm text-destructive">
+          Failed to load users
+        </p>
+      </div>
+    );
 
   function getUserCompanies(userId: string): Company[] {
     return companies?.filter((c) => c.users?.includes(userId)) ?? [];

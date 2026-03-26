@@ -15,7 +15,11 @@ export const Route = createFileRoute("/user/$userId")({
 function UserDetailPage() {
   const { userId } = Route.useParams();
 
-  const { data: user, isLoading: userLoading } = useFetch<User>({
+  const {
+    data: user,
+    isLoading: userLoading,
+    isError: userError,
+  } = useFetch<User>({
     url: `${ENDPOINTS.users}/${userId}`,
   });
   const { data: allCompanies, isLoading: companiesLoading } = useFetch<
@@ -45,6 +49,12 @@ function UserDetailPage() {
 
       {userLoading ? (
         <div className="h-32 rounded-lg border border-border bg-muted/20 animate-pulse" />
+      ) : userError ? (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/5 px-4 py-6 text-center">
+          <p className="font-mono text-sm text-destructive">
+            Failed to load user
+          </p>
+        </div>
       ) : user ? (
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-4">
